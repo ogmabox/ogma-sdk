@@ -370,13 +370,27 @@ export interface SdkMatchReplace {
 
 export interface SdkFs {
   /** Read a file from the plugin data directory. Returns the file content as a string. */
-  read(path: string): Promise<string>;
+  read(path: string): string;
+  readFile(path: string): string;
+  readFileSync(path: string): string;
   /** Write a string to a file in the plugin data directory. Creates the file if it doesn't exist. */
-  write(path: string, data: string): Promise<void>;
+  write(path: string, data: string): void;
+  writeFile(path: string, data: string): void;
+  writeFileSync(path: string, data: string): void;
+  appendFile(path: string, data: string): void;
   /** List files and directories in the given path within the plugin data directory. */
-  list(dir?: string): Promise<string[]>;
+  list(dir?: string): string[];
   /** Create a directory (and parents) in the plugin data directory. */
-  mkdir(path: string): Promise<void>;
+  mkdir(path: string): void;
+  exists(path: string): boolean;
+  existsSync(path: string): boolean;
+}
+
+export interface SdkPath {
+  join(...parts: string[]): string;
+  dirname(path: string): string;
+  basename(path: string): string;
+  extname(path: string): string;
 }
 
 // ---------------------------------------------------------------------------
@@ -403,4 +417,121 @@ export interface OgmaBackendSdk {
   workflows: SdkWorkflows;
   matchReplace: SdkMatchReplace;
   fs: SdkFs;
+  path: SdkPath;
+}
+
+// ---------------------------------------------------------------------------
+// Frontend SDK
+// ---------------------------------------------------------------------------
+
+export interface FrontendRequestEntry {
+  id: string;
+  method: string;
+  host: string;
+  port: number;
+  path: string;
+  query: string;
+  req_len: number;
+  resp_status: number | null;
+  resp_len: number | null;
+  roundtrip_ms: number | null;
+  created_at: number;
+}
+
+export interface FrontendRawBodies {
+  requestBodyBase64: string;
+  responseBodyBase64: string;
+  requestBodyLength: number;
+  responseBodyLength: number;
+  requestBodyTruncated: boolean;
+  responseBodyTruncated: boolean;
+  maxBodyBytes: number;
+}
+
+export interface FrontendFinding {
+  id: string;
+  title: string;
+  severity: FindingSeverity;
+  status: string;
+  reporter: string;
+  tags: string[];
+  created_at: number;
+}
+
+export interface OgmaFrontendSdk {
+  meta: {
+    get(): Promise<{ pluginId: string; packageId: string; name: string; version: string; ogmaVersion: string }>;
+  };
+  log: SdkLog;
+  requests: {
+    get(id: string): Promise<FrontendRequestEntry>;
+    getRaw(id: string): Promise<FrontendRawBodies>;
+    search(opts?: { query?: string; limit?: number; offset?: number }): Promise<{
+      items: FrontendRequestEntry[];
+      total: number;
+      limit: number;
+      offset: number;
+    }>;
+  };
+  findings: {
+    list(opts?: { limit?: number; offset?: number }): Promise<{ items: FrontendFinding[]; total: number; limit: number; offset: number }>;
+  };
+  scope: { getActive(): Promise<(ScopePreset & { rules: Array<{ pattern: string; include: boolean }> }) | null> };
+  projects: { getCurrent(): Promise<(OgmaProject & { status: string }) | null> };
+  navigation: { addPage(path: string, opts?: { title?: string; body?: HTMLElement }): Promise<{ registered: boolean }> };
+  sidebar: { registerItem(name: string, path: string): Promise<{ registered: boolean }> };
+  ui: {
+    resize(height: number): Promise<{ height: number }>;
+    sidebar: { registerItem(name: string, path: string): Promise<{ registered: boolean }> };
+  };
+  window: { showToast(message: string, opts?: { variant?: string; duration?: number }): Promise<void> };
+  backend: {
+    call(method: string, ...args: unknown[]): Promise<unknown>;
+    onEvent(callback: (event: { event: string; args: unknown[] }) => void): void;
+  };
+  theme: SdkTheme;
+}
+
+export interface OgmaFrontendBootstrap extends OgmaFrontendSdk {
+  ready(): Promise<OgmaFrontendSdk>;
+  ready(callback: (sdk: OgmaFrontendSdk) => void): Promise<OgmaFrontendSdk>;
+}
+
+export type PluginPermission =
+  | 'read_http_history' | 'read_ws_history' | 'read_findings' | 'read_replay'
+  | 'read_workflows' | 'read_exports' | 'read_env' | 'read_scope'
+  | 'read_projects' | 'read_match_replace' | 'plugin_storage' | 'ui_extension'
+  | 'write_findings' | 'write_match_replace' | 'send_requests' | 'run_workflows' | 'create_exports'
+  | 'read_secret_env' | 'network_access' | 'filesystem_access' | 'process_spawn' | 'admin';
+
+export interface PluginManifest {
+  id: string;
+  name?: string;
+  version: string;
+  description?: string;
+  permissions?: PluginPermission[];
+  compatibility?: {
+    ogma_min_version?: string;
+    ogma_max_version?: string;
+    sdk_version?: string;
+  };
+  signature?: {
+    algorithm: 'ed25519';
+    public_key: string;
+    value: string;
+  };
+  plugins: Array<{
+    kind: 'backend' | 'frontend' | 'workflow';
+    id: string;
+    entrypoint?: string;
+    definition?: string;
+    style?: string;
+    runtime?: 'javascript';
+  }>;
+}
+
+declare global {
+  interface Window {
+    ogmaSDK: OgmaFrontendBootstrap;
+  }
 }

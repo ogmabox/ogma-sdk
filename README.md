@@ -172,7 +172,7 @@ Read environment variables defined in **Settings > Environment**.
 sdk.env.getVar(name: string): string | undefined
 ```
 
-Requires the `read_env_vars` permission.
+Requires the `read_env` permission.
 
 ---
 
@@ -228,6 +228,11 @@ sdk.projects.getCurrent(): Promise<OgmaProject | null>
 - **No `fetch` or `XMLHttpRequest`**. Use `sdk.requests.send()` for outbound requests.
 - **No `localStorage`** in frontend plugins. Use `sdk.storage` for persistence.
 - Backend script size limit: **256 KB**.
+- Backend memory limit: **64 MB** per runtime.
+- Initialization limit: **30 seconds**; callback limit: **8 seconds**.
+- Event queues hold **50 events** and callback concurrency is capped at **4**.
+
+Ogma stops event delivery after repeated callback failures. Plugin frontend code runs in a sandboxed iframe, and backend JavaScript runs in a restricted QuickJS context without direct process, network, or unrestricted filesystem access; approved SDK methods mediate those capabilities.
 
 ---
 
@@ -238,10 +243,54 @@ Declare all permissions your plugin uses in `manifest.json`:
 | Permission | Required for |
 |------------|-------------|
 | `write_findings` | `sdk.findings.create()`, `sdk.findings.update()` |
+| `write_match_replace` | Mutating `sdk.matchReplace` methods |
 | `read_http_history` | `sdk.requests.search()`, `sdk.requests.get()` |
 | `send_requests` | `sdk.requests.send()` |
 | `ui_extension` | Any frontend entry point |
-| `read_env_vars` | `sdk.env.getVar()` |
+| `read_env` | `sdk.env.getVar()` |
+| `read_scope` | `sdk.scope.getActive()`, `sdk.scope.inScope()` |
+| `read_projects` | `sdk.projects.getCurrent()` |
+
+Declare safe permissions so frontend access can be granted and the installer can present an accurate review. Protected permissions are reviewed separately in Ogma before they are granted.
+
+### Compatibility and signing
+
+Declare the supported Ogma and SDK versions in `manifest.json`:
+
+```json
+{
+  "compatibility": {
+    "ogma_min_version": "0.1.0",
+    "ogma_max_version": "0.1.99",
+    "sdk_version": "1.0.0"
+  }
+}
+```
+
+Ogma rejects packages outside the declared Ogma range or with a different SDK major version. Packages may include an Ed25519 `signature` object containing `algorithm`, a base64 `public_key`, and a base64 signature `value`; signed registry entries bind that key to the publisher metadata.
+
+Sign a package after building it:
+
+```bash
+openssl genpkey -algorithm ED25519 -out publisher-key.pem
+npx ogma-plugin-sign ./dist --key ./publisher-key.pem
+```
+
+Keep the private key outside the package and source repository. Re-run the signer whenever any packaged file or manifest field changes.
+
+### Frontend SDK
+
+Frontend entry points use `window.ogmaSDK`. Calls made before the host bridge is ready are queued, or initialization can be explicit:
+
+```typescript
+window.ogmaSDK.ready(async (sdk) => {
+  const current = await sdk.projects.getCurrent();
+  const history = await sdk.requests.search({ query: 'req.host.cont:"example.com"' });
+  sdk.log.info(`${current?.name ?? 'No project'}: ${history.total} requests`);
+});
+```
+
+The frontend contract includes request metadata and raw body access, findings, active scope, current project, plugin-local navigation/sidebar pages, theme updates, toasts, resizing, and backend calls. Import `OgmaFrontendSdk`, `OgmaFrontendBootstrap`, or `PluginManifest` for the corresponding types.
 
 ---
 
