@@ -88,6 +88,17 @@ export interface MutableRequestSpec {
   setBody(body: string | Body | null): this;
 }
 
+/** Runtime RequestSpecRaw passed to upstream callbacks. Use toSpec() to edit headers or body. */
+export interface MutableRawRequestSpec extends Omit<MutableRequestSpec, 'setHeader' | 'removeHeader' | 'getBody' | 'setBody'> {
+  setRaw(bytes: Uint8Array): this;
+  getRaw(): Uint8Array;
+  getInfo(): { host: string; port: number; tls: boolean };
+  toSpec(): MutableRequestSpec;
+  getSpec(): MutableRequestSpec;
+}
+
+export type UpstreamRequestResult = RequestSpec | MutableRequestSpec | MutableRawRequestSpec | void;
+
 // ---------------------------------------------------------------------------
 // sdk.console
 // ---------------------------------------------------------------------------
@@ -112,7 +123,7 @@ export interface SdkEvents {
   /** Called when a Match & Replace rule is updated. */
   onCurrentRuleChange(callback: () => void): void;
   /** Called for each upstream request, allowing modification before sending. */
-  onUpstream(callback: (req: RequestSpec) => RequestSpec | void): void;
+  onUpstream(callback: (req: MutableRawRequestSpec) => UpstreamRequestResult | Promise<UpstreamRequestResult>): void;
   /** Called when a new finding is created. */
   onFindingCreated(callback: (finding: Finding) => void): void;
 }

@@ -8,6 +8,20 @@ new Body();
 declare const backend: OgmaBackendSdk;
 declare const frontend: OgmaFrontendSdk;
 
+backend.events.onUpstream((request) => {
+  const raw: Uint8Array = request.getRaw();
+  const spec: MutableRequestSpec = request.toSpec();
+  spec.setHeader('Authorization', 'Bearer replacement');
+  // @ts-expect-error Upstream callbacks receive a runtime object, not plain outbound fields.
+  request.method = 'POST';
+  void raw;
+  return spec;
+});
+backend.events.onUpstream(async (request) => {
+  await Promise.resolve();
+  return request.toSpec().setMethod('POST');
+});
+
 const entry = backend.requests.get('entry-id');
 if (entry) {
   const tls: boolean = entry.request.getTls();

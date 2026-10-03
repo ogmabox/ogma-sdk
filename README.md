@@ -88,8 +88,14 @@ sdk.events.onInterceptRequest(callback: (req: HttpRequest) => void | Promise<voi
 sdk.events.onInterceptResponse(callback: (req: HttpRequest, resp?: HttpResponse) => void): void
 sdk.events.onProjectChange(callback: () => void): void
 sdk.events.onCurrentRuleChange(callback: () => void): void
-sdk.events.onUpstream(callback: (req: RequestSpec) => RequestSpec | void): void
+sdk.events.onUpstream(callback: (req: MutableRawRequestSpec) => UpstreamRequestResult | Promise<UpstreamRequestResult>): void
 ```
+
+Upstream callbacks receive a runtime request object with methods, not the plain
+fields used by `sdk.requests.send()`. Call `req.toSpec()` to obtain an editable
+request, then return it after changing headers, body, or routing. The callback
+may also return a plain `RequestSpec`, a runtime request object, or nothing to
+leave the request unchanged. Async callbacks are supported.
 
 ---
 
