@@ -208,6 +208,23 @@ sdk.projects.list(): { items: Array<OgmaProject & { status: string; created_at: 
 
 ---
 
+### `sdk.workflows`
+
+```typescript
+sdk.workflows.list(opts?: { limit?: number; offset?: number }): {
+  items: Workflow[]; total: number; limit: number; offset: number;
+}
+sdk.workflows.get(id: string): (Workflow & { definition_json: string }) | null
+```
+
+Backend reads are synchronous. `list()` returns the active project's workflows
+and workspace-shared workflows, newest first. `total` counts matching workflows
+before pagination. List items contain metadata; `get(id)` loads the definition
+for an explicit ID and returns `null` if it no longer exists.
+Without an active project, all workspace workflows are listed.
+
+---
+
 ### `sdk.matchReplace`
 
 Backend Match & Replace methods are synchronous. Rules use a `section` containing an `operation`, matcher, and replacer. The enabled-state field returned by the runtime is `isEnabled`; `enabled` remains an accepted input alias. `query` is an HTTPQL filter.

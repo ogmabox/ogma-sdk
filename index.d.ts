@@ -389,7 +389,7 @@ export interface ListWorkflowsOptions {
 }
 
 export interface SdkWorkflows {
-  /** List workflows. */
+  /** List active-project and workspace-shared workflows, with pagination. */
   list(opts?: ListWorkflowsOptions): { items: Workflow[]; total: number; limit: number; offset: number };
   /** Get a single workflow by ID. */
   get(id: string): (Workflow & { definition_json: string }) | null;
