@@ -106,9 +106,10 @@ export type UpstreamRequestResult = RequestSpec | MutableRequestSpec | MutableRa
 // ---------------------------------------------------------------------------
 
 export interface SdkConsole {
-  log(message: string): void;
-  warn(message: string): void;
-  error(message: string): void;
+  /** Log a single value. Objects use the runtime's compact representation. */
+  log(message: unknown): void;
+  warn(message: unknown): void;
+  error(message: unknown): void;
 }
 
 // ---------------------------------------------------------------------------
@@ -371,9 +372,10 @@ export interface SdkMeta {
 // ---------------------------------------------------------------------------
 
 export interface SdkLog {
-  info(message: string): void;
-  warn(message: string): void;
-  error(message: string): void;
+  /** Log a single value using the host's string conversion. */
+  info(message: unknown): void;
+  warn(message: unknown): void;
+  error(message: unknown): void;
 }
 
 // ---------------------------------------------------------------------------

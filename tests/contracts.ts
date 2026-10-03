@@ -9,6 +9,22 @@ declare const backend: OgmaBackendSdk;
 declare const frontend: OgmaFrontendSdk;
 declare const rawRequest: MutableRawRequestSpec;
 
+backend.console.log(200);
+backend.console.warn(false);
+backend.console.error(null);
+backend.console.log({ status: 200 });
+backend.console.log(undefined);
+backend.log.info(200);
+backend.log.warn(false);
+backend.log.error(null);
+frontend.log.info({ status: 200 });
+frontend.log.warn(false);
+frontend.log.error(undefined);
+// @ts-expect-error Logging accepts one value, not additional formatting arguments.
+backend.console.log('status', 200);
+// @ts-expect-error Frontend logging also accepts only one value.
+frontend.log.info('status', 200);
+
 backend.api.register('sum', (first: number, second: number): number => first + second);
 backend.api.register('rename', async (id: string, options: { name: string }) => ({ id, name: options.name }));
 backend.api.register('ping', () => 'pong');
