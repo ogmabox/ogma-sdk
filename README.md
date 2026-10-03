@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://github.com/KaijinLab/ogma-sdk">
+  <a href="https://github.com/ogmabox/ogma-sdk">
     <img src=".github/banner.png" alt="Ogma SDK" width="100%">
   </a>
 </p>
@@ -296,10 +296,10 @@ The frontend contract includes request metadata and raw body access, findings, a
 
 ## Plugin examples
 
-- [Request Counter](https://github.com/KaijinLab/awesome-ogma-plugins/tree/master/plugins/request-counter) -- minimal plain JavaScript plugin
-- [Security Headers Checker](https://github.com/KaijinLab/awesome-ogma-plugins/tree/master/plugins/security-headers) -- TypeScript + esbuild
+- [Request Counter](https://github.com/ogmabox/awesome-ogma-plugins/tree/master/plugins/request-counter) -- minimal plain JavaScript plugin
+- [Security Headers Checker](https://github.com/ogmabox/awesome-ogma-plugins/tree/master/plugins/security-headers) -- TypeScript + esbuild
 
-Browse the full registry: [awesome-ogma-plugins](https://github.com/KaijinLab/awesome-ogma-plugins)
+Browse the full registry: [awesome-ogma-plugins](https://github.com/ogmabox/awesome-ogma-plugins)
 
 ---
 
