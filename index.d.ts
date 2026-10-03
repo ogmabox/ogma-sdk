@@ -265,8 +265,24 @@ export interface ScopePreset {
   name: string;
 }
 
+export interface ScopeRule {
+  pattern: string;
+  include: boolean;
+  /** Absent on older app versions. */
+  rule_type?: string;
+  path_pattern?: string | null;
+}
+
+export interface ActiveScopePreset extends ScopePreset {
+  rules: ScopeRule[];
+  /** Additional metadata is absent on older app versions. */
+  httpql_expression?: string | null;
+  rate_limit_rps?: number | null;
+  created_at?: number;
+}
+
 export interface SdkScope {
-  getActive(): (ScopePreset & { rules: Array<{ pattern: string; include: boolean }> }) | null;
+  getActive(): ActiveScopePreset | null;
   /** Check a URL (host, path, port, TLS) or a bare hostname against the active scope. */
   inScope(url: string): boolean;
 }
@@ -578,7 +594,7 @@ export interface OgmaFrontendSdk {
   findings: {
     list(opts?: { limit?: number; offset?: number }): Promise<{ items: FrontendFinding[]; total: number; limit: number; offset: number }>;
   };
-  scope: { getActive(): Promise<(ScopePreset & { rules: Array<{ pattern: string; include: boolean }> }) | null> };
+  scope: { getActive(): Promise<ActiveScopePreset | null> };
   projects: { getCurrent(): Promise<(OgmaProject & { status: string }) | null> };
   navigation: { addPage(path: string, opts?: { title?: string; body?: HTMLElement }): Promise<{ registered: boolean }> };
   sidebar: { registerItem(name: string, path: string): Promise<{ registered: boolean }> };

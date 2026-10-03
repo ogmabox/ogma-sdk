@@ -1,4 +1,4 @@
-import type { OgmaBackendSdk, OgmaFrontendSdk, MutableRequestSpec, SearchResult, FrontendRequestEntry, FrontendFinding } from '../index';
+import type { OgmaBackendSdk, OgmaFrontendSdk, MutableRequestSpec, SearchResult, FrontendRequestEntry, FrontendFinding, ActiveScopePreset } from '../index';
 import { Body } from '../index';
 
 // The types-only package does not export a runtime Body constructor.
@@ -56,6 +56,20 @@ const filteredFindingTotal: number = backend.findings.list({ severity: 'high', r
 const updated: { updated: true; id: string } = backend.findings.update(created.id, { title: 'Updated' });
 const exists: boolean = backend.findings.exists('test-key');
 const inScope: boolean = backend.scope.inScope('https://example.test');
+const activeScope = backend.scope.getActive();
+const pathPattern: string | null | undefined = activeScope?.rules[0]?.path_pattern;
+const scopeExpression: string | null | undefined = activeScope?.httpql_expression;
+const scopeRate: number | null | undefined = activeScope?.rate_limit_rps;
+async function frontendScopeMetadata() {
+  const scope = await frontend.scope.getActive();
+  const ruleType: string | undefined = scope?.rules[0]?.rule_type;
+  return ruleType;
+}
+void [pathPattern, scopeExpression, scopeRate, frontendScopeMetadata];
+const legacyScope: ActiveScopePreset = {
+  id: 'scope', name: 'Legacy', rules: [{ pattern: 'example.test', include: true }],
+};
+void legacyScope;
 const projectName: string | undefined = backend.projects.getCurrent()?.name;
 const projectList = backend.projects.list();
 const projectStatus: string | undefined = projectList.items[0]?.status;

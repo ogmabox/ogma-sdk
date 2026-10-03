@@ -187,13 +187,18 @@ Requires the `read_env` permission.
 ### `sdk.scope`
 
 ```typescript
-sdk.scope.getActive(): (ScopePreset & { rules: Array<{ pattern: string; include: boolean }> }) | null
+sdk.scope.getActive(): ActiveScopePreset | null
 sdk.scope.inScope(url: string): boolean
 ```
 
 `inScope()` accepts a full URL or a bare hostname. URLs supply the host, path,
 port, and TLS state for scope rules and HTTPQL expressions. A hostname alone
 provides no path, port, or TLS context. Neither input specifies an HTTP method.
+
+`getActive()` includes rule types and path patterns, the HTTPQL expression,
+rate limit, and creation timestamp. These additional fields are optional in the
+SDK types for compatibility with older app versions. The frontend getter returns
+the same metadata asynchronously.
 
 ---
 
