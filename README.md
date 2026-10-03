@@ -118,6 +118,8 @@ or supply `raw_b64` in a plain `RequestSpec`. The base64 body takes precedence o
 
 Backend request APIs return synchronously; existing code can still `await` their results. Search items are entry metadata, not request/response wrappers. Sending returns `resp_status`, `resp_headers`, `resp_body` (`text`, `size`, `truncated`), and `roundtrip_ms`. Use `request.toSpec()` to create a mutable copy with its headers and body text.
 
+In `onUpstream` callbacks, returning a `RequestSpecRaw` after `setRaw(bytes)` also replaces the outgoing body with those exact bytes, including an empty byte array. Plain request results can use `raw_b64`, which takes precedence over `body`.
+
 Request and response `getBody()` wrappers expose read-only `length` and `truncated` metadata. Check `body.truncated` before saving or processing its text as a complete asset: the host can return a bounded preview, while `body.length` reports the original byte length. `toRaw()` encodes the available text as UTF-8; it does not recover original binary bytes.
 
 Searches use the active project, just like HTTP History. Without an active project, they return only unassigned entries. `requests.get(id)` remains an explicit entry lookup.
