@@ -184,6 +184,8 @@ In the frontend, receive events with `sdk.backend.onEvent()` and call backend fu
 
 Read environment variables defined in **Settings > Environment**.
 
+Running plugins read the latest saved non-secret values without a reload. Variables in the active project override global variables with the same name. Missing or unavailable values return `null`.
+
 ```typescript
 sdk.env.getVar(name: string): string | null
 sdk.env.get(name: string): string | null // alias for getVar
