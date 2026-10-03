@@ -109,10 +109,12 @@ sdk.requests.get(id: string): { request: HttpRequest; response?: HttpResponse } 
 sdk.requests.search(opts?: { q?: string; limit?: number; offset?: number }): { items: SearchResult[]; total: number; limit: number; offset: number }
 
 // Send an outbound HTTP request
-sdk.requests.send(spec: RequestSpec | MutableRequestSpec): BackendResponseEntry
+sdk.requests.send(spec: RequestSpec | MutableRequestSpec | MutableRawRequestSpec): BackendResponseEntry
 ```
 
 Requires the `send_requests` permission to call `sdk.requests.send()`.
+For binary request bodies, pass a runtime `RequestSpecRaw` with `setRaw(bytes)`,
+or supply `raw_b64` in a plain `RequestSpec`. The base64 body takes precedence over `body`.
 
 Backend request APIs return synchronously; existing code can still `await` their results. Search items are entry metadata, not request/response wrappers. Sending returns `resp_status`, `resp_headers`, `resp_body` (`text`, `size`, `truncated`), and `roundtrip_ms`. Use `request.toSpec()` to create a mutable copy with its headers and body text.
 

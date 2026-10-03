@@ -1,4 +1,4 @@
-import type { OgmaBackendSdk, OgmaFrontendSdk, MutableRequestSpec, SearchResult, FrontendRequestEntry, FrontendFinding, ActiveScopePreset } from '../index';
+import type { OgmaBackendSdk, OgmaFrontendSdk, MutableRequestSpec, MutableRawRequestSpec, SearchResult, FrontendRequestEntry, FrontendFinding, ActiveScopePreset } from '../index';
 import { Body } from '../index';
 
 // The types-only package does not export a runtime Body constructor.
@@ -7,6 +7,17 @@ new Body();
 
 declare const backend: OgmaBackendSdk;
 declare const frontend: OgmaFrontendSdk;
+declare const rawRequest: MutableRawRequestSpec;
+
+rawRequest.setRaw(new Uint8Array([0, 128, 255]));
+const rawResponse = backend.requests.send(rawRequest);
+const rawResponseStatus: number = rawResponse.resp_status;
+void rawResponseStatus;
+backend.requests.send({
+  method: 'POST', host: 'example.test', port: 443, tls: true, path: '/', raw_b64: 'AID/',
+});
+// @ts-expect-error Raw body encoding must be a base64 string, not a byte array.
+backend.requests.send({ method: 'POST', host: 'example.test', port: 443, tls: true, path: '/', raw_b64: new Uint8Array() });
 
 backend.events.onUpstream((request) => {
   const raw: Uint8Array = request.getRaw();

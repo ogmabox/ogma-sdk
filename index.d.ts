@@ -66,6 +66,8 @@ export interface RequestSpec {
   query?: string;
   headers?: Array<[string, string]> | Record<string, string>;
   body?: string;
+  /** Base64-encoded body bytes. Takes precedence over body when provided. */
+  raw_b64?: string;
 }
 
 /** Runtime RequestSpec objects use methods rather than plain outbound fields. */
@@ -166,7 +168,7 @@ export interface SdkRequests {
   /** Search the active project's HTTP history. Returns matching entry metadata. */
   search(opts?: SearchOptions): { items: SearchResult[]; total: number; limit: number; offset: number };
   /** Send an HTTP request and return the response. */
-  send(spec: RequestSpec | MutableRequestSpec): BackendResponseEntry;
+  send(spec: RequestSpec | MutableRequestSpec | MutableRawRequestSpec): BackendResponseEntry;
 }
 
 // ---------------------------------------------------------------------------
