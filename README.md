@@ -230,6 +230,15 @@ Without an active project, all workspace workflows are listed.
 
 ---
 
+### `sdk.settings.get`
+
+`sdk.settings.get(key)` returns the saved value synchronously as a string, or
+`null` when unset. It reads plugin storage under `__settings__:<key>` and requires
+`plugin_storage`. Existing `await sdk.settings.get(key)` calls still work, but
+the result is not a Promise and does not have a `.then()` method.
+
+---
+
 ### `sdk.matchReplace`
 
 Backend Match & Replace methods are synchronous. Rules use a `section` containing an `operation`, matcher, and replacer. The enabled-state field returned by the runtime is `isEnabled`; `enabled` remains an accepted input alias. `query` is an HTTPQL filter.

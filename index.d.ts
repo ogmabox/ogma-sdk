@@ -369,8 +369,8 @@ export interface SettingsPageSpec {
 
 export interface SdkSettings {
   register(spec: SettingsPageSpec): void;
-  /** Get the current saved value for a registered settings field. Returns null if not set. */
-  get(key: string): Promise<string | null>;
+  /** Synchronously get the saved settings value. Returns null if not set. */
+  get(key: string): string | null;
 }
 
 // ---------------------------------------------------------------------------
