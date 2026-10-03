@@ -9,6 +9,16 @@ declare const backend: OgmaBackendSdk;
 declare const frontend: OgmaFrontendSdk;
 declare const rawRequest: MutableRawRequestSpec;
 
+const resolvedPath: string = backend.path.resolve('exports', 'app.js');
+const absolutePath: boolean = backend.path.isAbsolute(resolvedPath);
+const pathSeparator: string = backend.path.sep;
+const stem: string = backend.path.basename(resolvedPath, '.js');
+// @ts-expect-error A basename suffix must be a string.
+backend.path.basename(resolvedPath, 1);
+// @ts-expect-error Path resolution accepts string segments.
+backend.path.resolve('exports', 1);
+void [resolvedPath, absolutePath, pathSeparator, stem];
+
 rawRequest.setRaw(new Uint8Array([0, 128, 255]));
 const rawResponse = backend.requests.send(rawRequest);
 const rawResponseStatus: number = rawResponse.resp_status;

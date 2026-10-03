@@ -274,6 +274,23 @@ Partial updates preserve omitted fields. `getRules()` returns an array; `getRule
 
 ---
 
+### `sdk.path`
+
+Path operations use the backend's platform conventions. `resolve()` starts from
+the backend process's working directory, not the plugin data directory.
+
+```typescript
+sdk.path.join(...parts: string[]): string
+sdk.path.dirname(path: string): string
+sdk.path.basename(path: string, suffix?: string): string
+sdk.path.extname(path: string): string
+sdk.path.resolve(...parts: string[]): string
+sdk.path.isAbsolute(path: string): boolean
+sdk.path.sep: string
+```
+
+The optional `basename()` suffix removes a matching suffix from the filename.
+
 ### `HttpRequest` methods
 
 | Method | Returns | Description |

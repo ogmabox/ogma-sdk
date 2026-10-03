@@ -523,8 +523,13 @@ export interface SdkFs {
 export interface SdkPath {
   join(...parts: string[]): string;
   dirname(path: string): string;
-  basename(path: string): string;
+  basename(path: string, suffix?: string): string;
   extname(path: string): string;
+  /** Resolve segments against the backend process's working directory. */
+  resolve(...parts: string[]): string;
+  isAbsolute(path: string): boolean;
+  /** The backend platform's directory separator. */
+  readonly sep: string;
 }
 
 // ---------------------------------------------------------------------------
