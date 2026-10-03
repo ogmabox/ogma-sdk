@@ -17,7 +17,7 @@
 // ---------------------------------------------------------------------------
 
 /** Represents an HTTP body. Returned by getBody() methods. */
-export declare class Body {
+export interface Body {
   /** The body length in bytes. */
   readonly length: number;
   /** Returns the full body text. */

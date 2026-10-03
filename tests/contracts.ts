@@ -1,4 +1,9 @@
 import type { OgmaBackendSdk, OgmaFrontendSdk, MutableRequestSpec, SearchResult, FrontendRequestEntry, FrontendFinding } from '../index';
+import { Body } from '../index';
+
+// The types-only package does not export a runtime Body constructor.
+// @ts-expect-error Body is provided by the application runtime, not this package.
+new Body();
 
 declare const backend: OgmaBackendSdk;
 declare const frontend: OgmaFrontendSdk;
