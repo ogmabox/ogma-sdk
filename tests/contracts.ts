@@ -127,6 +127,14 @@ const sessions = backend.replay.getSessions({ limit: 5 });
 const attempts = backend.replay.getSession(sessions.items[0]?.id ?? '')?.attempts;
 const workflows = backend.workflows.list();
 const setting = backend.settings.get('apiKey');
+backend.settings.register({
+  title: 'Exporter',
+  fields: [
+    { key: 'enabled', label: 'Enabled', type: 'boolean', default: false },
+    { key: 'format', label: 'Format', type: 'select', options: [{ value: 'json', label: 'JSON' }] },
+  ],
+  onSave: async values => { const enabled: unknown = values.enabled; void enabled; },
+});
 const settingValue: string | null = setting;
 if (setting !== null) {
   // @ts-expect-error Backend settings are synchronous, not promises.

@@ -241,10 +241,25 @@ Without an active project, all workspace workflows are listed.
 
 ---
 
-### `sdk.settings.get`
+### `sdk.settings`
+
+Register a settings form during backend initialization with
+`sdk.settings.register({ title, fields, onSave })`. Users edit it in the plugin's
+**Settings** tab. Fields support `text`, `password`, `number`, `boolean`, and
+`select` controls, with labels, descriptions, and optional defaults. Select
+fields require `options` containing `{ value, label }` entries. Field keys must
+be unique.
+
+Saving validates field types and choices before persisting all values together.
+The optional `onSave(values)` callback runs afterward and may be asynchronous.
+It receives numbers and booleans as their actual types, and can read the newly
+saved values through `sdk.settings.get`. A callback failure does not undo the
+save; the interface reports that distinction. Settings survive plugin reloads.
 
 `sdk.settings.get(key)` returns the saved value synchronously as a string, or
-`null` when unset. It reads plugin storage under `__settings__:<key>` and requires
+`null` when unset. Numbers and booleans are returned as text. Unsaved defaults
+are displayed in the form; they are not saved until the user submits it.
+Previously stored `__settings__:<key>` values remain readable. This API requires
 `plugin_storage`. Existing `await sdk.settings.get(key)` calls still work, but
 the result is not a Promise and does not have a `.then()` method.
 

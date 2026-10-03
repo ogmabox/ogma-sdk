@@ -392,12 +392,13 @@ export interface SettingsFieldSpec {
 export interface SettingsPageSpec {
   title: string;
   fields: SettingsFieldSpec[];
+  /** Called after settings are persisted; receives typed field values. */
   onSave?: (values: Record<string, unknown>) => void | Promise<void>;
 }
 
 export interface SdkSettings {
   register(spec: SettingsPageSpec): void;
-  /** Synchronously get the saved settings value. Returns null if not set. */
+  /** Synchronously get a saved setting as text (including numbers/booleans). Returns null if not set. */
   get(key: string): string | null;
 }
 
