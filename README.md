@@ -118,13 +118,15 @@ Backend request APIs return synchronously; existing code can still `await` their
 sdk.findings.create(spec: CreateFindingSpec): { created: boolean; id: string }
 sdk.findings.get(id: string): Finding | null
 sdk.findings.list(opts?: ListFindingsOptions): { items: Omit<Finding, 'description' | 'dedupe_key'>[]; total: number; limit: number; offset: number }
-sdk.findings.update(id: string, patch: Partial<CreateFindingSpec>): { updated: true; id: string }
+sdk.findings.update(id: string, patch: UpdateFindingSpec): { updated: true; id: string }
 sdk.findings.exists(key: string | { dedupeKey: string }): boolean
 ```
 
 Requires the `write_findings` permission. Calls to `sdk.findings.create()` must be made inside an event callback (`onInterceptRequest` or `onInterceptResponse`).
 
 Mutation results contain the finding ID and an outcome flag, not a full finding. Fetch the full record with `sdk.findings.get(result.id)` when needed. Read methods require `read_findings`; `write_findings` is needed for mutations.
+
+`findings.list` reads the active project's findings. Options include `severity`, a case-insensitive `reporter` substring, `limit`, and `offset`. Filters apply before pagination; `total` is the number of matching findings, not just the current page.
 
 ```typescript
 interface CreateFindingSpec {

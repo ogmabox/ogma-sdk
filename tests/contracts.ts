@@ -47,6 +47,12 @@ const created: { created: boolean; id: string } = backend.findings.create({
 const finding = backend.findings.get(created.id);
 const description: string | null | undefined = finding?.description;
 const findingTotal: number = backend.findings.list().total;
+backend.findings.create({ title: 'Default severity' });
+if (entry) backend.findings.create({ title: 'Linked finding', request: entry.request, dedupeKey: 'linked', tags: ['plugin'] });
+backend.findings.update(created.id, { status: 'confirmed', description: null, tags: ['reviewed'] });
+// @ts-expect-error Creation-only evidence fields are not updatable.
+backend.findings.update(created.id, { entry_id: 'different-entry' });
+const filteredFindingTotal: number = backend.findings.list({ severity: 'high', reporter: 'plugin:' }).total;
 const updated: { updated: true; id: string } = backend.findings.update(created.id, { title: 'Updated' });
 const exists: boolean = backend.findings.exists('test-key');
 const inScope: boolean = backend.scope.inScope('https://example.test');
@@ -56,7 +62,7 @@ const attempts = backend.replay.getSession(sessions.items[0]?.id ?? '')?.attempt
 const workflows = backend.workflows.list();
 const workflowType: string | undefined = workflows.items[0]?.workflow_type;
 const definition: string | undefined = backend.workflows.get('workflow-id')?.definition_json;
-void [description, findingTotal, updated, exists, inScope, projectName, attempts, workflowType, definition];
+void [description, findingTotal, filteredFindingTotal, updated, exists, inScope, projectName, attempts, workflowType, definition];
 
 const rule = backend.matchReplace.createRule({
   name: 'Beautify response', isEnabled: false, query: 'req.path.cont:".js"',

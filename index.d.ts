@@ -166,12 +166,27 @@ export type FindingSeverity = 'info' | 'low' | 'medium' | 'high' | 'critical';
 
 export interface CreateFindingSpec {
   title: string;
-  severity: FindingSeverity;
-  description: string;
+  /** Defaults to info. */
+  severity?: FindingSeverity;
+  description?: string;
+  tags?: string[];
   /** Prevents duplicate findings. If a finding with this key exists, returns it. */
   dedupe_key?: string;
+  /** Compatible alias for dedupe_key. */
+  dedupeKey?: string;
   /** Links the finding to an HTTP history entry. */
   entry_id?: string;
+  /** Links the finding to this request when entry_id is not supplied. */
+  request?: HttpRequest;
+}
+
+export interface UpdateFindingSpec {
+  title?: string;
+  severity?: FindingSeverity;
+  status?: 'open' | 'confirmed' | 'false_positive' | 'resolved';
+  /** Use null to clear the description. */
+  description?: string | null;
+  tags?: string[];
 }
 
 export interface Finding {
@@ -192,6 +207,8 @@ export interface ListFindingsOptions {
   limit?: number;
   offset?: number;
   severity?: FindingSeverity;
+  /** Case-insensitive substring match against the finding reporter. */
+  reporter?: string;
 }
 
 export interface SdkFindings {
@@ -203,7 +220,7 @@ export interface SdkFindings {
     limit: number;
     offset: number;
   };
-  update(id: string, patch: Partial<CreateFindingSpec>): { updated: true; id: string };
+  update(id: string, patch: UpdateFindingSpec): { updated: true; id: string };
   /** Check whether a finding with the given dedupe_key already exists. */
   exists(dedupeKeyOrSpec: string | { dedupeKey: string }): boolean;
 }
