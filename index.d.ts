@@ -152,7 +152,7 @@ export interface BackendResponseEntry {
 export interface SdkRequests {
   /** Fetch a single HTTP entry by id. Returns undefined if not found. */
   get(id: string): { request: HttpRequest; response?: HttpResponse } | undefined;
-  /** Search HTTP history. Returns matching entries. */
+  /** Search the active project's HTTP history. Returns matching entry metadata. */
   search(opts?: SearchOptions): { items: SearchResult[]; total: number; limit: number; offset: number };
   /** Send an HTTP request and return the response. */
   send(spec: RequestSpec | MutableRequestSpec): BackendResponseEntry;

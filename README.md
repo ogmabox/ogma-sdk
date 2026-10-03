@@ -110,6 +110,8 @@ Requires the `send_requests` permission to call `sdk.requests.send()`.
 
 Backend request APIs return synchronously; existing code can still `await` their results. Search items are entry metadata, not request/response wrappers. Sending returns `resp_status`, `resp_headers`, `resp_body` (`text`, `size`, `truncated`), and `roundtrip_ms`. Use `request.toSpec()` to create a mutable copy with its headers and body text.
 
+Searches use the active project, just like HTTP History. Without an active project, they return only unassigned entries. `requests.get(id)` remains an explicit entry lookup.
+
 ---
 
 ### `sdk.findings`
