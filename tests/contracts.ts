@@ -57,12 +57,15 @@ const updated: { updated: true; id: string } = backend.findings.update(created.i
 const exists: boolean = backend.findings.exists('test-key');
 const inScope: boolean = backend.scope.inScope('https://example.test');
 const projectName: string | undefined = backend.projects.getCurrent()?.name;
+const projectList = backend.projects.list();
+const projectStatus: string | undefined = projectList.items[0]?.status;
+const projectCreatedAt: number | undefined = projectList.items[0]?.created_at;
 const sessions = backend.replay.getSessions({ limit: 5 });
 const attempts = backend.replay.getSession(sessions.items[0]?.id ?? '')?.attempts;
 const workflows = backend.workflows.list();
 const workflowType: string | undefined = workflows.items[0]?.workflow_type;
 const definition: string | undefined = backend.workflows.get('workflow-id')?.definition_json;
-void [description, findingTotal, filteredFindingTotal, updated, exists, inScope, projectName, attempts, workflowType, definition];
+void [description, findingTotal, filteredFindingTotal, updated, exists, inScope, projectName, projectStatus, projectCreatedAt, attempts, workflowType, definition];
 
 const rule = backend.matchReplace.createRule({
   name: 'Beautify response', isEnabled: false, query: 'req.path.cont:".js"',

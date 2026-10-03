@@ -281,6 +281,8 @@ export interface OgmaProject {
 
 export interface SdkProjects {
   getCurrent(): (OgmaProject & { status: string; created_at: number }) | null;
+  /** List up to 50 projects in the current workspace. */
+  list(): { items: Array<OgmaProject & { status: string; created_at: number }> };
 }
 
 // ---------------------------------------------------------------------------

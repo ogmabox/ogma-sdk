@@ -197,7 +197,10 @@ sdk.scope.inScope(url: string): boolean
 
 ```typescript
 sdk.projects.getCurrent(): (OgmaProject & { status: string; created_at: number }) | null
+sdk.projects.list(): { items: Array<OgmaProject & { status: string; created_at: number }> }
 ```
+
+`list()` returns up to 50 projects in the current workspace.
 
 ---
 
