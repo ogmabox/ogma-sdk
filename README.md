@@ -274,6 +274,12 @@ Partial updates preserve omitted fields. `getRules()` returns an array; `getRule
 
 ---
 
+### `sdk.runtime`
+
+`sdk.runtime.version()` synchronously returns the version of the Ogma application
+hosting the plugin. This differs from `sdk.meta.version()`, which returns the
+plugin's own version.
+
 ### `sdk.path`
 
 Path operations use the backend's platform conventions. `resolve()` starts from

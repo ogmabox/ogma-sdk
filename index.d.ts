@@ -340,6 +340,15 @@ export interface SdkReplay {
 }
 
 // ---------------------------------------------------------------------------
+// sdk.runtime
+// ---------------------------------------------------------------------------
+
+export interface SdkRuntime {
+  /** Returns the version of the Ogma application hosting this plugin. */
+  version(): string;
+}
+
+// ---------------------------------------------------------------------------
 // sdk.meta
 // ---------------------------------------------------------------------------
 
@@ -551,6 +560,7 @@ export interface OgmaBackendSdk {
   scope: SdkScope;
   projects: SdkProjects;
   replay: SdkReplay;
+  runtime: SdkRuntime;
   meta: SdkMeta;
   settings: SdkSettings;
   workflows: SdkWorkflows;

@@ -9,6 +9,9 @@ declare const backend: OgmaBackendSdk;
 declare const frontend: OgmaFrontendSdk;
 declare const rawRequest: MutableRawRequestSpec;
 
+const hostVersion: string = backend.runtime.version();
+void hostVersion;
+
 const resolvedPath: string = backend.path.resolve('exports', 'app.js');
 const absolutePath: boolean = backend.path.isAbsolute(resolvedPath);
 const pathSeparator: string = backend.path.sep;
