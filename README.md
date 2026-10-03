@@ -191,6 +191,10 @@ sdk.scope.getActive(): (ScopePreset & { rules: Array<{ pattern: string; include:
 sdk.scope.inScope(url: string): boolean
 ```
 
+`inScope()` accepts a full URL or a bare hostname. URLs supply the host, path,
+port, and TLS state for scope rules and HTTPQL expressions. A hostname alone
+provides no path, port, or TLS context. Neither input specifies an HTTP method.
+
 ---
 
 ### `sdk.projects`

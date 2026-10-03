@@ -267,6 +267,7 @@ export interface ScopePreset {
 
 export interface SdkScope {
   getActive(): (ScopePreset & { rules: Array<{ pattern: string; include: boolean }> }) | null;
+  /** Check a URL (host, path, port, TLS) or a bare hostname against the active scope. */
   inScope(url: string): boolean;
 }
 
