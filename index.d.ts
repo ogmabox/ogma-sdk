@@ -22,7 +22,7 @@ export declare class Body {
   readonly length: number;
   /** Returns the full body text. */
   toText(): string;
-  /** Parses and returns the body as JSON. Throws if not valid JSON. */
+  /** Parses the body as JSON. Returns null if not valid JSON. */
   toJson(): unknown;
   /** Returns raw bytes as a Uint8Array. */
   toRaw(): Uint8Array;
@@ -32,6 +32,7 @@ export interface HttpRequest {
   getId(): string | null;
   getHost(): string;
   getPort(): number;
+  getTls(): boolean;
   getMethod(): string;
   getPath(): string;
   getQuery(): string;
@@ -39,6 +40,9 @@ export interface HttpRequest {
   getHeaders(): Record<string, string>;
   getHeader(name: string): string | undefined;
   getBody(): Body | undefined;
+  getCreatedAt(): Date | null;
+  /** Create an editable copy of the request's URL, method, headers, and body text. */
+  toSpec(): MutableRequestSpec;
 }
 
 export interface HttpResponse {
@@ -62,6 +66,26 @@ export interface RequestSpec {
   query?: string;
   headers?: Array<[string, string]>;
   body?: string;
+}
+
+/** Runtime RequestSpec objects use methods rather than plain outbound fields. */
+export interface MutableRequestSpec {
+  getMethod(): string;
+  setMethod(method: string): this;
+  getHost(): string;
+  setHost(host: string): this;
+  getPort(): number;
+  setPort(port: number): this;
+  getTls(): boolean;
+  setTls(tls: boolean): this;
+  getPath(): string;
+  setPath(path: string): this;
+  getQuery(): string;
+  setQuery(query: string): this;
+  setHeader(name: string, value: string | string[]): this;
+  removeHeader(name: string): this;
+  getBody(): string | Body | null;
+  setBody(body: string | Body | null): this;
 }
 
 // ---------------------------------------------------------------------------
@@ -105,17 +129,33 @@ export interface SearchOptions {
 }
 
 export interface SearchResult {
-  request: HttpRequest;
-  response?: HttpResponse;
+  id: string;
+  method: string;
+  host: string;
+  port: number;
+  path: string;
+  query: string;
+  resp_status: number | null;
+  resp_len: number | null;
+  roundtrip_ms: number | null;
+  created_at: number;
+}
+
+export interface BackendResponseEntry {
+  id: null;
+  resp_status: number;
+  resp_headers: Record<string, string>;
+  resp_body: { text: string; size: number; truncated: boolean };
+  roundtrip_ms: number;
 }
 
 export interface SdkRequests {
   /** Fetch a single HTTP entry by id. Returns undefined if not found. */
-  get(id: string): Promise<{ request: HttpRequest; response?: HttpResponse } | undefined>;
+  get(id: string): { request: HttpRequest; response?: HttpResponse } | undefined;
   /** Search HTTP history. Returns matching entries. */
-  search(opts?: SearchOptions): Promise<SearchResult[]>;
+  search(opts?: SearchOptions): { items: SearchResult[]; total: number; limit: number; offset: number };
   /** Send an HTTP request and return the response. */
-  send(spec: RequestSpec): Promise<{ response: HttpResponse }>;
+  send(spec: RequestSpec | MutableRequestSpec): BackendResponseEntry;
 }
 
 // ---------------------------------------------------------------------------
@@ -164,11 +204,11 @@ export interface SdkFindings {
 // ---------------------------------------------------------------------------
 
 export interface SdkStorage {
-  get(key: string): Promise<string | null>;
-  set(key: string, value: string): Promise<void>;
-  delete(key: string): Promise<void>;
-  keys(): Promise<string[]>;
-  clear(): Promise<void>;
+  get(key: string): string | null;
+  set(key: string, value: string): void;
+  delete(key: string): void;
+  keys(): string[];
+  clear(): void;
 }
 
 // ---------------------------------------------------------------------------

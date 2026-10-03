@@ -97,16 +97,18 @@ sdk.events.onUpstream(callback: (req: RequestSpec) => RequestSpec | void): void
 
 ```typescript
 // Fetch a single history entry
-sdk.requests.get(id: string): Promise<{ request: HttpRequest; response?: HttpResponse } | undefined>
+sdk.requests.get(id: string): { request: HttpRequest; response?: HttpResponse } | undefined
 
 // Search HTTP history with HTTPQL
-sdk.requests.search(opts?: { q?: string; limit?: number; offset?: number }): Promise<SearchResult[]>
+sdk.requests.search(opts?: { q?: string; limit?: number; offset?: number }): { items: SearchResult[]; total: number; limit: number; offset: number }
 
 // Send an outbound HTTP request
-sdk.requests.send(spec: RequestSpec): Promise<{ response: HttpResponse }>
+sdk.requests.send(spec: RequestSpec | MutableRequestSpec): BackendResponseEntry
 ```
 
 Requires the `send_requests` permission to call `sdk.requests.send()`.
+
+Backend request APIs return synchronously; existing code can still `await` their results. Search items are entry metadata, not request/response wrappers. Sending returns `resp_status`, `resp_headers`, `resp_body` (`text`, `size`, `truncated`), and `roundtrip_ms`. Use `request.toSpec()` to create a mutable copy with its headers and body text.
 
 ---
 
@@ -139,11 +141,11 @@ interface CreateFindingSpec {
 Persistent key-value store scoped to your plugin. Survives restarts.
 
 ```typescript
-sdk.storage.get(key: string): Promise<string | null>
-sdk.storage.set(key: string, value: string): Promise<void>
-sdk.storage.delete(key: string): Promise<void>
-sdk.storage.keys(): Promise<string[]>
-sdk.storage.clear(): Promise<void>
+sdk.storage.get(key: string): string | null
+sdk.storage.set(key: string, value: string): void
+sdk.storage.delete(key: string): void
+sdk.storage.keys(): string[]
+sdk.storage.clear(): void
 ```
 
 ---
@@ -206,7 +208,10 @@ sdk.projects.getCurrent(): Promise<OgmaProject | null>
 | `getUrl()` | `string` | Full URL |
 | `getHeaders()` | `Record<string, string>` | All request headers |
 | `getHeader(name)` | `string \| undefined` | Single header, case-insensitive |
-| `getBody()` | `string \| null` | Request body |
+| `getBody()` | `Body \| undefined` | Request body wrapper |
+| `getTls()` | `boolean` | Whether the request uses TLS |
+| `getCreatedAt()` | `Date \| null` | Capture time |
+| `toSpec()` | `MutableRequestSpec` | Editable copy of the request |
 
 ### `HttpResponse` methods
 
@@ -216,9 +221,9 @@ sdk.projects.getCurrent(): Promise<OgmaProject | null>
 | `getCode()` | `number` | HTTP status code |
 | `getHeaders()` | `Record<string, string>` | All response headers |
 | `getHeader(name)` | `string \| undefined` | Single header, case-insensitive |
-| `getBody()` | `string \| null` | Response body |
+| `getBody()` | `Body \| undefined` | Response body wrapper |
 | `getRoundtripTime()` | `number` | Round-trip time in milliseconds |
-| `getCreatedAt()` | `number` | Unix timestamp (ms) |
+| `getCreatedAt()` | `Date \| null` | Capture time |
 
 ---
 
