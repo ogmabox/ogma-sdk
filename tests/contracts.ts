@@ -9,6 +9,12 @@ declare const backend: OgmaBackendSdk;
 declare const frontend: OgmaFrontendSdk;
 declare const rawRequest: MutableRawRequestSpec;
 
+declare const capturedBody: Body;
+const bodyTruncated: boolean = capturedBody.truncated;
+// @ts-expect-error Truncation metadata is read-only.
+capturedBody.truncated = false;
+void bodyTruncated;
+
 backend.console.log(200);
 backend.console.warn(false);
 backend.console.error(null);

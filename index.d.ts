@@ -18,13 +18,15 @@
 
 /** Represents an HTTP body. Returned by getBody() methods. */
 export interface Body {
-  /** The body length in bytes. */
+  /** The original body length in bytes, which may exceed the available preview. */
   readonly length: number;
-  /** Returns the full body text. */
+  /** True when the host returned a bounded preview instead of the complete body. */
+  readonly truncated: boolean;
+  /** Returns the available body text. Check truncated before treating it as complete. */
   toText(): string;
   /** Parses the body as JSON. Returns null if not valid JSON. */
   toJson(): unknown;
-  /** Returns raw bytes as a Uint8Array. */
+  /** Returns the UTF-8 bytes of the available body text as a Uint8Array. */
   toRaw(): Uint8Array;
 }
 
