@@ -54,6 +54,11 @@ const host: string | undefined = results.items[0]?.host;
 const total: number = results.total;
 const value: string | null = backend.storage.get('key');
 const keys: string[] = backend.storage.keys();
+const environmentValue: string | null = backend.env.getVar('EXPORT_FOLDER');
+const environmentAlias: string | null = backend.env.get('EXPORT_FOLDER');
+// @ts-expect-error Missing environment variables return null, not undefined.
+const optionalEnvironment: string | undefined = backend.env.getVar('MISSING');
+void [environmentValue, environmentAlias, optionalEnvironment];
 backend.storage.set('key', 'value');
 backend.storage.delete('key');
 backend.storage.clear();

@@ -266,7 +266,10 @@ export interface SdkApi {
 // ---------------------------------------------------------------------------
 
 export interface SdkEnv {
-  getVar(name: string): string | undefined;
+  /** Returns null when the variable is missing or unavailable to this plugin. */
+  getVar(name: string): string | null;
+  /** Alias for getVar. */
+  get(name: string): string | null;
 }
 
 // ---------------------------------------------------------------------------

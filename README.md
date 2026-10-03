@@ -185,7 +185,8 @@ In the frontend, receive events with `sdk.backend.onEvent()` and call backend fu
 Read environment variables defined in **Settings > Environment**.
 
 ```typescript
-sdk.env.getVar(name: string): string | undefined
+sdk.env.getVar(name: string): string | null
+sdk.env.get(name: string): string | null // alias for getVar
 ```
 
 Requires the `read_env` permission.
