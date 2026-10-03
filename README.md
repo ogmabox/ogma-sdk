@@ -115,14 +115,16 @@ Backend request APIs return synchronously; existing code can still `await` their
 ### `sdk.findings`
 
 ```typescript
-sdk.findings.create(spec: CreateFindingSpec): Promise<Finding>
-sdk.findings.get(id: string): Promise<Finding | undefined>
-sdk.findings.list(opts?: ListFindingsOptions): Promise<{ findings: Finding[]; total: number }>
-sdk.findings.update(id: string, patch: Partial<CreateFindingSpec>): Promise<Finding>
-sdk.findings.exists(key: string | { dedupeKey: string }): Promise<boolean>
+sdk.findings.create(spec: CreateFindingSpec): { created: boolean; id: string }
+sdk.findings.get(id: string): Finding | null
+sdk.findings.list(opts?: ListFindingsOptions): { items: Omit<Finding, 'description' | 'dedupe_key'>[]; total: number; limit: number; offset: number }
+sdk.findings.update(id: string, patch: Partial<CreateFindingSpec>): { updated: true; id: string }
+sdk.findings.exists(key: string | { dedupeKey: string }): boolean
 ```
 
 Requires the `write_findings` permission. Calls to `sdk.findings.create()` must be made inside an event callback (`onInterceptRequest` or `onInterceptResponse`).
+
+Mutation results contain the finding ID and an outcome flag, not a full finding. Fetch the full record with `sdk.findings.get(result.id)` when needed. Read methods require `read_findings`; `write_findings` is needed for mutations.
 
 ```typescript
 interface CreateFindingSpec {
@@ -181,8 +183,8 @@ Requires the `read_env` permission.
 ### `sdk.scope`
 
 ```typescript
-sdk.scope.getActive(): Promise<ScopePreset | null>
-sdk.scope.inScope(url: string): Promise<boolean>
+sdk.scope.getActive(): (ScopePreset & { rules: Array<{ pattern: string; include: boolean }> }) | null
+sdk.scope.inScope(url: string): boolean
 ```
 
 ---
@@ -190,7 +192,7 @@ sdk.scope.inScope(url: string): Promise<boolean>
 ### `sdk.projects`
 
 ```typescript
-sdk.projects.getCurrent(): Promise<OgmaProject | null>
+sdk.projects.getCurrent(): (OgmaProject & { status: string; created_at: number }) | null
 ```
 
 ---

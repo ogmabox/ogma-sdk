@@ -31,3 +31,20 @@ async function existingPlugin() {
 // Frontend bridge calls remain asynchronous.
 const lookup: Promise<unknown> = frontend.requests.get('entry-id');
 void [host, total, value, keys, existingPlugin, lookup];
+
+const created: { created: boolean; id: string } = backend.findings.create({
+  title: 'Unexpected access', severity: 'high', description: 'Observed in test traffic',
+});
+const finding = backend.findings.get(created.id);
+const description: string | null | undefined = finding?.description;
+const findingTotal: number = backend.findings.list().total;
+const updated: { updated: true; id: string } = backend.findings.update(created.id, { title: 'Updated' });
+const exists: boolean = backend.findings.exists('test-key');
+const inScope: boolean = backend.scope.inScope('https://example.test');
+const projectName: string | undefined = backend.projects.getCurrent()?.name;
+const sessions = backend.replay.getSessions({ limit: 5 });
+const attempts = backend.replay.getSession(sessions.items[0]?.id ?? '')?.attempts;
+const workflows = backend.workflows.list();
+const workflowType: string | undefined = workflows.items[0]?.workflow_type;
+const definition: string | undefined = backend.workflows.get('workflow-id')?.definition_json;
+void [description, findingTotal, updated, exists, inScope, projectName, attempts, workflowType, definition];

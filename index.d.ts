@@ -178,10 +178,14 @@ export interface Finding {
   id: string;
   title: string;
   severity: FindingSeverity;
-  description: string;
-  dedupe_key?: string;
-  entry_id?: string;
+  description: string | null;
+  dedupe_key: string | null;
+  entry_id: string | null;
+  status: string;
+  reporter: string | null;
+  tags: string[];
   created_at: number;
+  updated_at: number;
 }
 
 export interface ListFindingsOptions {
@@ -191,12 +195,17 @@ export interface ListFindingsOptions {
 }
 
 export interface SdkFindings {
-  create(spec: CreateFindingSpec): Promise<Finding>;
-  get(id: string): Promise<Finding | undefined>;
-  list(opts?: ListFindingsOptions): Promise<{ findings: Finding[]; total: number }>;
-  update(id: string, patch: Partial<CreateFindingSpec>): Promise<Finding>;
+  create(spec: CreateFindingSpec): { created: boolean; id: string };
+  get(id: string): Finding | null;
+  list(opts?: ListFindingsOptions): {
+    items: Omit<Finding, 'description' | 'dedupe_key'>[];
+    total: number;
+    limit: number;
+    offset: number;
+  };
+  update(id: string, patch: Partial<CreateFindingSpec>): { updated: true; id: string };
   /** Check whether a finding with the given dedupe_key already exists. */
-  exists(dedupeKeyOrSpec: string | { dedupeKey: string }): Promise<boolean>;
+  exists(dedupeKeyOrSpec: string | { dedupeKey: string }): boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -240,8 +249,8 @@ export interface ScopePreset {
 }
 
 export interface SdkScope {
-  getActive(): Promise<ScopePreset | null>;
-  inScope(url: string): Promise<boolean>;
+  getActive(): (ScopePreset & { rules: Array<{ pattern: string; include: boolean }> }) | null;
+  inScope(url: string): boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -254,7 +263,7 @@ export interface OgmaProject {
 }
 
 export interface SdkProjects {
-  getCurrent(): Promise<OgmaProject | null>;
+  getCurrent(): (OgmaProject & { status: string; created_at: number }) | null;
 }
 
 // ---------------------------------------------------------------------------
@@ -264,11 +273,18 @@ export interface SdkProjects {
 export interface ReplaySession {
   id: string;
   name: string;
+  from_entry_id: string | null;
+  created_at: number;
 }
 
 export interface SdkReplay {
-  getSessions(): Promise<ReplaySession[]>;
-  getSession(id: string): Promise<ReplaySession | undefined>;
+  getSessions(opts?: { limit?: number; offset?: number }): {
+    items: ReplaySession[]; total: number; limit: number; offset: number;
+  };
+  getSession(id: string): (ReplaySession & {
+    attempt_count: number;
+    attempts: Array<{ id: string; session_id: string; entry_id: string | null; seq: number; created_at: number }>;
+  }) | null;
 }
 
 // ---------------------------------------------------------------------------
@@ -339,8 +355,10 @@ export interface SdkTheme {
 export interface Workflow {
   id: string;
   name: string;
-  kind: string;
+  workflow_type: string;
+  description: string | null;
   enabled: boolean;
+  logging_enabled: boolean;
   created_at: number;
   updated_at: number;
 }
@@ -352,9 +370,9 @@ export interface ListWorkflowsOptions {
 
 export interface SdkWorkflows {
   /** List workflows. */
-  list(opts?: ListWorkflowsOptions): Promise<{ workflows: Workflow[]; total: number }>;
+  list(opts?: ListWorkflowsOptions): { items: Workflow[]; total: number; limit: number; offset: number };
   /** Get a single workflow by ID. */
-  get(id: string): Promise<Workflow | undefined>;
+  get(id: string): (Workflow & { definition_json: string }) | null;
 }
 
 // ---------------------------------------------------------------------------
