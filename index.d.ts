@@ -256,7 +256,7 @@ export interface SdkStorage {
 
 export interface SdkApi {
   /** Register a function callable from the frontend via sdk.backend.call(name, ...args). */
-  register(name: string, fn: (...args: unknown[]) => unknown | Promise<unknown>): void;
+  register<Args extends unknown[], Result>(name: string, fn: (...args: Args) => Result | Promise<Result>): void;
   /** Send an event to the frontend. Received via sdk.backend.onEvent(). */
   send(event: string, ...args: unknown[]): void;
 }

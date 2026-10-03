@@ -9,6 +9,12 @@ declare const backend: OgmaBackendSdk;
 declare const frontend: OgmaFrontendSdk;
 declare const rawRequest: MutableRawRequestSpec;
 
+backend.api.register('sum', (first: number, second: number): number => first + second);
+backend.api.register('rename', async (id: string, options: { name: string }) => ({ id, name: options.name }));
+backend.api.register('ping', () => 'pong');
+// @ts-expect-error Backend API handlers must be functions.
+backend.api.register('invalid', 42);
+
 const hostVersion: string = backend.runtime.version();
 void hostVersion;
 
