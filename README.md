@@ -197,6 +197,32 @@ sdk.projects.getCurrent(): (OgmaProject & { status: string; created_at: number }
 
 ---
 
+### `sdk.matchReplace`
+
+Backend Match & Replace methods are synchronous. Rules use a `section` containing an `operation`, matcher, and replacer. The enabled-state field returned by the runtime is `isEnabled`; `enabled` remains an accepted input alias. `query` is an HTTPQL filter.
+
+```typescript
+const rule = sdk.matchReplace.createRule({
+  name: 'Beautify JavaScript responses',
+  isEnabled: false,
+  query: 'resp.headers["Content-Type"].value.cont:"javascript"',
+  section: {
+    kind: 'SectionResponseBody',
+    operation: {
+      kind: 'OperationBodyRaw',
+      matcher: { kind: 'MatcherRawFull' },
+      replacer: { kind: 'ReplacerWorkflow', workflowId: 'your-convert-workflow-id' },
+    },
+  },
+});
+sdk.matchReplace.updateRule(rule.id, { name: 'Renamed workflow rule' });
+sdk.matchReplace.toggleRule(rule.id, true);
+```
+
+Partial updates preserve omitted fields. `getRules()` returns an array; `getRule(id)` returns a rule or `null`. `createRule()` and `updateRule()` return the resulting rule, while `toggleRule()` and `deleteRule()` have no result. Mutations require `write_match_replace`.
+
+---
+
 ### `HttpRequest` methods
 
 | Method | Returns | Description |

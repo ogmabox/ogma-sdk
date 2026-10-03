@@ -1,4 +1,4 @@
-import type { OgmaBackendSdk, OgmaFrontendSdk, MutableRequestSpec } from '../index';
+import type { OgmaBackendSdk, OgmaFrontendSdk, MutableRequestSpec, SearchResult, FrontendRequestEntry, FrontendFinding } from '../index';
 
 declare const backend: OgmaBackendSdk;
 declare const frontend: OgmaFrontendSdk;
@@ -16,6 +16,10 @@ if (entry) {
 }
 
 const results = backend.requests.search({ limit: 10, offset: 0 });
+backend.requests.send({
+  method: 'GET', host: 'example.test', port: 443, tls: true, path: '/',
+  headers: { Accept: 'application/json' },
+});
 const host: string | undefined = results.items[0]?.host;
 const total: number = results.total;
 const value: string | null = backend.storage.get('key');
@@ -48,3 +52,23 @@ const workflows = backend.workflows.list();
 const workflowType: string | undefined = workflows.items[0]?.workflow_type;
 const definition: string | undefined = backend.workflows.get('workflow-id')?.definition_json;
 void [description, findingTotal, updated, exists, inScope, projectName, attempts, workflowType, definition];
+
+const rule = backend.matchReplace.createRule({
+  name: 'Beautify response', isEnabled: false, query: 'req.path.cont:".js"',
+  section: { kind: 'SectionResponseBody', operation: {
+    kind: 'OperationBodyRaw', matcher: { kind: 'MatcherRawFull' },
+    replacer: { kind: 'ReplacerWorkflow', workflowId: 'convert-workflow' },
+  } },
+});
+const renamed = backend.matchReplace.updateRule(rule.id, { name: 'Renamed' });
+const query: string = renamed.query;
+const enabled: boolean = backend.matchReplace.getRules()[0]!.isEnabled;
+const maybeRule = backend.matchReplace.getRule(rule.id);
+backend.matchReplace.toggleRule(rule.id, true);
+backend.matchReplace.deleteRule(rule.id);
+void [query, enabled, maybeRule];
+
+const missingQuery: SearchResult['query'] = null;
+const missingFrontendQuery: FrontendRequestEntry['query'] = null;
+const missingReporter: FrontendFinding['reporter'] = null;
+void [missingQuery, missingFrontendQuery, missingReporter];

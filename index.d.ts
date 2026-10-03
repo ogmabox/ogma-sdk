@@ -64,7 +64,7 @@ export interface RequestSpec {
   tls: boolean;
   path: string;
   query?: string;
-  headers?: Array<[string, string]>;
+  headers?: Array<[string, string]> | Record<string, string>;
   body?: string;
 }
 
@@ -122,7 +122,7 @@ export interface SdkEvents {
 // ---------------------------------------------------------------------------
 
 export interface SearchOptions {
-  /** HTTPQL query string, e.g. "host:example.com AND method:POST". */
+  /** HTTPQL query string, e.g. 'req.host.eq:"example.com" AND req.method.eq:"POST"'. */
   q?: string;
   limit?: number;
   offset?: number;
@@ -134,7 +134,7 @@ export interface SearchResult {
   host: string;
   port: number;
   path: string;
-  query: string;
+  query: string | null;
   resp_status: number | null;
   resp_len: number | null;
   roundtrip_ms: number | null;
@@ -380,44 +380,68 @@ export interface SdkWorkflows {
 // ---------------------------------------------------------------------------
 
 export type MatchReplacePhase = 'request' | 'response';
-export type MatchReplaceSection = 'RequestLine' | 'RequestHeader' | 'RequestBody' | 'ResponseLine' | 'ResponseHeader' | 'ResponseBody';
-export type MatchReplaceOperation = string;
+export type MatchReplaceSection =
+  | 'SectionRequestFirstLine' | 'SectionRequestHeader' | 'SectionRequestBody'
+  | 'SectionRequestPath' | 'SectionRequestQuery'
+  | 'SectionResponseFirstLine' | 'SectionResponseHeader' | 'SectionResponseBody'
+  | 'SectionResponseStatusCode';
+export type MatchReplaceOperation =
+  | 'OperationFirstLineRaw' | 'OperationHeaderRaw' | 'OperationHeaderAdd'
+  | 'OperationHeaderRemove' | 'OperationHeaderUpdate' | 'OperationBodyRaw'
+  | 'OperationPathRaw' | 'OperationQueryRaw' | 'OperationQueryAdd'
+  | 'OperationQueryRemove' | 'OperationQueryUpdate' | 'OperationStatusCodeUpdate';
+
+export interface MatchReplaceSectionSpec {
+  kind: MatchReplaceSection;
+  operation: {
+    kind: MatchReplaceOperation;
+    matcher?:
+      | { kind: 'MatcherRawFull' }
+      | { kind: 'MatcherRawValue'; value: string }
+      | { kind: 'MatcherRawRegex'; regex: string }
+      | { kind: 'MatcherName'; name: string };
+    replacer?:
+      | { kind: 'ReplacerTerm'; term: string }
+      | { kind: 'ReplacerWorkflow'; workflowId: string };
+  };
+}
 
 export interface MatchReplaceRule {
   id: string;
   name: string;
-  phase: MatchReplacePhase;
-  match_host?: string;
-  match_path?: string;
-  match_method?: string;
-  match_status?: string;
-  enabled: boolean;
-  created_at: number;
+  isEnabled: boolean;
+  /** HTTPQL filter, or an empty string when no query is configured. */
+  query: string;
+  section: MatchReplaceSectionSpec;
+  collectionId: string;
+  sources: string[];
 }
 
 export interface CreateMatchReplaceRuleBody {
   name: string;
-  phase: MatchReplacePhase;
-  match_host?: string;
-  match_path?: string;
-  match_method?: string;
-  match_status?: string;
+  section: MatchReplaceSectionSpec;
+  isEnabled?: boolean;
+  /** Legacy alias for isEnabled. */
   enabled?: boolean;
+  query?: string;
+  filter_host?: string | null;
+  filter_method?: string | null;
+  position?: number;
 }
 
 export interface SdkMatchReplace {
   /** Get all match-and-replace rules. */
-  getRules(): Promise<MatchReplaceRule[]>;
+  getRules(): MatchReplaceRule[];
   /** Get a single rule by ID. */
-  getRule(id: string): Promise<MatchReplaceRule | undefined>;
+  getRule(id: string): MatchReplaceRule | null;
   /** Create a new rule. */
-  createRule(rule: CreateMatchReplaceRuleBody): Promise<MatchReplaceRule>;
+  createRule(rule: CreateMatchReplaceRuleBody): MatchReplaceRule;
   /** Update an existing rule. */
-  updateRule(id: string, patch: Partial<CreateMatchReplaceRuleBody>): Promise<MatchReplaceRule>;
+  updateRule(id: string, patch: Partial<CreateMatchReplaceRuleBody>): MatchReplaceRule;
   /** Delete a rule. */
-  deleteRule(id: string): Promise<void>;
+  deleteRule(id: string): void;
   /** Enable or disable a rule. */
-  toggleRule(id: string, enabled: boolean): Promise<MatchReplaceRule>;
+  toggleRule(id: string, enabled: boolean): void;
   /** Register a callback fired when any rule changes. */
   onCurrentRuleChange(callback: () => void): void;
 }
@@ -488,7 +512,7 @@ export interface FrontendRequestEntry {
   host: string;
   port: number;
   path: string;
-  query: string;
+  query: string | null;
   req_len: number;
   resp_status: number | null;
   resp_len: number | null;
@@ -511,7 +535,7 @@ export interface FrontendFinding {
   title: string;
   severity: FindingSeverity;
   status: string;
-  reporter: string;
+  reporter: string | null;
   tags: string[];
   created_at: number;
 }
