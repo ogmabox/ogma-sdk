@@ -3,7 +3,7 @@
 // The actual implementation is provided by the Ogma runtime at plugin load time.
 //
 // Usage:
-//   import type { OgmaBackendSdk, HttpRequest, HttpResponse } from '@kaijinlab/ogma-sdk';
+//   import type { OgmaBackendSdk, HttpRequest, HttpResponse } from '@ogmabox/ogma-sdk';
 //
 //   async function init(sdk: OgmaBackendSdk): Promise<void> {
 //     sdk.events.onInterceptRequest(async (req) => {

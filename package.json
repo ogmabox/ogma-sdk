@@ -1,5 +1,5 @@
 {
-  "name": "@kaijinlab/ogma-sdk",
+  "name": "@ogmabox/ogma-sdk",
   "version": "1.1.0",
   "description": "TypeScript types for the Ogma plugin SDK.",
   "keywords": ["ogma", "plugin", "sdk", "security", "proxy"],
@@ -10,8 +10,8 @@
   },
   "license": "AGPL-3.0-only",
   "author": {
-    "name": "Kaijin Lab",
-    "url": "https://github.com/KaijinLab"
+    "name": "OgmaBox",
+    "url": "https://github.com/ogmabox"
   },
   "main": "index.js",
   "types": "index.d.ts",

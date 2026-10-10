@@ -6,13 +6,13 @@
 
 <div align="center">
 
-# @kaijinlab/ogma-sdk
+# @ogmabox/ogma-sdk
 
 ### TypeScript type definitions for the Ogma plugin SDK.
 
 <br/>
 
-[![npm](https://img.shields.io/npm/v/@kaijinlab/ogma-sdk?style=for-the-badge&color=e8a44a)](https://www.npmjs.com/package/@kaijinlab/ogma-sdk)
+[![npm](https://img.shields.io/npm/v/@ogmabox/ogma-sdk?style=for-the-badge&color=e8a44a)](https://www.npmjs.com/package/@ogmabox/ogma-sdk)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-e8a44a?style=for-the-badge)](LICENSE)
 [![Types](https://img.shields.io/badge/types-included-555555?style=for-the-badge)](index.d.ts)
 
@@ -25,18 +25,18 @@
 
 ---
 
-This package provides TypeScript type definitions for the [Ogma](https://ogma.kaijinlab.com) plugin SDK. It has no runtime code -- types only.
+This package provides TypeScript type definitions for the [Ogma](https://ogmabox.com) plugin SDK. It has no runtime code -- types only.
 
 ## Install
 
 ```bash
-npm install --save-dev @kaijinlab/ogma-sdk
+pnpm add -D @ogmabox/ogma-sdk
 ```
 
 ## Quick start
 
 ```typescript
-import type { OgmaBackendSdk, HttpRequest, HttpResponse } from '@kaijinlab/ogma-sdk';
+import type { OgmaBackendSdk, HttpRequest, HttpResponse } from '@ogmabox/ogma-sdk';
 
 async function init(sdk: OgmaBackendSdk): Promise<void> {
   sdk.console.log('Plugin started');
@@ -60,10 +60,10 @@ Build with [esbuild](https://esbuild.github.io/):
 
 ```bash
 npx esbuild src/backend.ts --bundle --format=iife --platform=neutral \
-  --external:@kaijinlab/ogma-sdk --outfile=dist/backend.js
+  --external:@ogmabox/ogma-sdk --outfile=dist/backend.js
 ```
 
-The `--external:@kaijinlab/ogma-sdk` flag tells esbuild not to bundle this package. The SDK is types-only -- the actual implementation is provided by the Ogma runtime.
+The `--external:@ogmabox/ogma-sdk` flag tells esbuild not to bundle this package. The SDK is types-only -- the actual implementation is provided by the Ogma runtime.
 
 ---
 
